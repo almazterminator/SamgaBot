@@ -18,7 +18,7 @@ func main() {
 		Token:  "7372500293:AAEhE0KUZ5QhxpZWa_N5IkmjtyREA5NO_3o",
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
 	}
-
+	
 	
 	
 	// Создание бота
@@ -27,6 +27,12 @@ func main() {
 		log.Fatalf("Ошибка запуска бота: %v", err)
 		return
 	}
+	
+	err = bot.SetWebhook(&telebot.Webhook{
+		Endpoint: &telebot.WebhookEndpoint{
+			PublicURL: "https://samgabot.onrender.com",
+		},
+	})
 
 	// Создание inline-клавиатуры
 	inlineMenu := &telebot.ReplyMarkup{}
