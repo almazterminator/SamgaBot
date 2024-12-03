@@ -5,16 +5,11 @@ import (
 	"time"
 	"strings"
 	"gopkg.in/telebot.v3"
-	"os"
-	"net/http"
 
 )
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080" // или другой порт по умолчанию
-	}
+	
 	// Настройки бота
 	pref := telebot.Settings{
 		Token:  "7372500293:AAEhE0KUZ5QhxpZWa_N5IkmjtyREA5NO_3o",
@@ -30,11 +25,7 @@ func main() {
 		return
 	}
 	
-	err = bot.SetWebhook(&telebot.Webhook{
-		Endpoint: &telebot.WebhookEndpoint{
-			PublicURL: "https://samgabot.onrender.com",
-		},
-	})
+
 
 	// Создание inline-клавиатуры
 	inlineMenu := &telebot.ReplyMarkup{}
@@ -161,7 +152,6 @@ func main() {
 	log.Println("Бот запущен!")
 	
 
-	http.ListenAndServe(":"+port, nil) // Убедитесь, что сервер слушает на порту
 
 	bot.Start()
 }
