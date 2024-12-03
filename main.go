@@ -5,15 +5,22 @@ import (
 	"time"
 	"strings"
 	"gopkg.in/telebot.v3"
+	"os"
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // или другой порт по умолчанию
+	}
 	// Настройки бота
 	pref := telebot.Settings{
 		Token:  "7372500293:AAEhE0KUZ5QhxpZWa_N5IkmjtyREA5NO_3o",
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
 	}
 
+	
+	
 	// Создание бота
 	bot, err := telebot.NewBot(pref)
 	if err != nil {
