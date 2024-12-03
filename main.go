@@ -6,6 +6,8 @@ import (
 	"strings"
 	"gopkg.in/telebot.v3"
 	"os"
+	"net/http"
+
 )
 
 func main() {
@@ -159,6 +161,7 @@ func main() {
 	log.Println("Бот запущен!")
 	
 
+	http.ListenAndServe(":"+port, nil) // Убедитесь, что сервер слушает на порту
 
 	bot.Start()
 }
