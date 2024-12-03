@@ -12,7 +12,7 @@ func main() {
 	
 	// Настройки бота
 	pref := telebot.Settings{
-		Token:  "7372500293:AAEhE0KUZ5QhxpZWa_N5IkmjtyREA5NO_3o",
+		Token:  "7228846507:AAGUW3Zneq27_o1Uz6vv4V-Mra43uYzxHcw",
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
 	}
 	
