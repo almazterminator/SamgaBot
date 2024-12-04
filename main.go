@@ -1,39 +1,30 @@
 package main
 
 import (
-	"log"
-	"time"
-	"strings"
 	"gopkg.in/telebot.v3"
-	"fmt"
-    "net/http"
-
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"strings"
+	"sync"
+	"syscall"
+	"time"
 )
 
 func main() {
-		port := "8080"
-	fmt.Printf("Starting server on port %s...\n", port)
-	err := http.ListenAndServe(":"+port, nil)
-	if err != nil {
-		fmt.Printf("Error starting server: %s\n", err)
-	}
-	
 	// Настройки бота
 	pref := telebot.Settings{
 		Token:  "7228846507:AAGUW3Zneq27_o1Uz6vv4V-Mra43uYzxHcw",
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
 	}
-	
-	
-	
+
 	// Создание бота
 	bot, err := telebot.NewBot(pref)
 	if err != nil {
 		log.Fatalf("Ошибка запуска бота: %v", err)
 		return
 	}
-	
-
 
 	// Создание inline-клавиатуры
 	inlineMenu := &telebot.ReplyMarkup{}
@@ -45,11 +36,10 @@ func main() {
 	btnHelp := inlineMenu.Data("Помощь 🆘", "help_callback")
 	btnAiesec := inlineMenu.Data("О нас! 🏡", "aiesec_callback")
 
-
 	// Добавляем кнопки в строки
 	inlineMenu.Inline(
 		inlineMenu.Row(btnAgenda, btnAbout),
-		inlineMenu.Row(btnHelp , btnAiesec),
+		inlineMenu.Row(btnHelp, btnAiesec),
 	)
 
 	// Кнопка назад
@@ -60,32 +50,29 @@ func main() {
 		return c.Send("Добро пожаловать на SAMĞA Forum! 😊 Выберите действие:", &telebot.SendOptions{
 			ReplyMarkup: inlineMenu,
 		})
-		
+
 	})
 
-// Обработка callback-кнопки "Программа"
-bot.Handle(&btnAgenda, func(c telebot.Context) error {
-	// Ответ на нажатие кнопки
-	if err := c.Respond(&telebot.CallbackResponse{}); err != nil {
-		return err
-	}
+	// Обработка callback-кнопки "Программа"
+	bot.Handle(&btnAgenda, func(c telebot.Context) error {
+		// Ответ на нажатие кнопки
+		if err := c.Respond(&telebot.CallbackResponse{}); err != nil {
+			return err
+		}
 
-	// Удаление сообщения с кнопками
-	if err := bot.Delete(c.Message()); err != nil {
-		return err
-	}
+		// Удаление сообщения с кнопками
+		if err := bot.Delete(c.Message()); err != nil {
+			return err
+		}
 
-	// Отправка текста с кнопкой "Назад"
-	inlineBack.Inline(
-		inlineBack.Row(btnBack),
-	)
-	return c.Send("Программа мероприятия: \n\nДата: 19 января\nМесто: Университет НАРХОЗ или КБТУ (уточняется).\n\nВремя: 10:00–11:00 Открытие (Main Hall)\n- Приветственное слово от организаторов (Chair, LCP, LCVP oGX).\n- Представление партнеров и целей форума.\n\n11:00–12:00\nПрезентация от Mars (Hall 1)\n- Тема: 'Лидерство и карьерный рост'.\n- Продолжительность: 50 минут.\n\n12:00–13:00\nПрезентация от JTI (Hall 2)\n- Тема: 'Баланс между работой и личной жизнью'.\n- Продолжительность: 50 минут.\n\n13:00–13:20\nКофе-брейк (Networking Zone)\n- Легкий перекус и неформальное общение.\n\n13:30–14:30\nПанельная дискуссия от Mastercard (Main Hall)\n- Тема: 'Women Empowerment'.\n- Участники: 3 представителя компании.\n\n14:30–15:30\nŞam x Samğa – выступления спикеров из медиа и искусства (Main Hall)\n- Тема: 'Роль медиа и искусства в продвижении женщин'.\n- Участники: 4 спикера из индустрии.\n\n15:30–16:00\nКофе-брейк и networking space (Networking Zone)\n- Время для общения и установления контактов.\n\n16:00–17:00\nВыступление инфлюенсера (Main Hall)\n- Тема: 'Развитие личного бренда и поддержка Women Empowerment'.\n\n17:00–17:40\nЗакрытие форума (Main Hall)\n- Резюме ключевых моментов форума.\n- Благодарственные слова организаторов (LCVP BD, LCVP PM, OC team).\n- Анонс следующих мероприятий.\n", &telebot.SendOptions{
-		ReplyMarkup: inlineBack,
+		// Отправка текста с кнопкой "Назад"
+		inlineBack.Inline(
+			inlineBack.Row(btnBack),
+		)
+		return c.Send("Программа мероприятия: \n\nДата: 19 января\nМесто: Университет НАРХОЗ или КБТУ (уточняется).\n\nВремя: 10:00–11:00 Открытие (Main Hall)\n- Приветственное слово от организаторов (Chair, LCP, LCVP oGX).\n- Представление партнеров и целей форума.\n\n11:00–12:00\nПрезентация от Mars (Hall 1)\n- Тема: 'Лидерство и карьерный рост'.\n- Продолжительность: 50 минут.\n\n12:00–13:00\nПрезентация от JTI (Hall 2)\n- Тема: 'Баланс между работой и личной жизнью'.\n- Продолжительность: 50 минут.\n\n13:00–13:20\nКофе-брейк (Networking Zone)\n- Легкий перекус и неформальное общение.\n\n13:30–14:30\nПанельная дискуссия от Mastercard (Main Hall)\n- Тема: 'Women Empowerment'.\n- Участники: 3 представителя компании.\n\n14:30–15:30\nŞam x Samğa – выступления спикеров из медиа и искусства (Main Hall)\n- Тема: 'Роль медиа и искусства в продвижении женщин'.\n- Участники: 4 спикера из индустрии.\n\n15:30–16:00\nКофе-брейк и networking space (Networking Zone)\n- Время для общения и установления контактов.\n\n16:00–17:00\nВыступление инфлюенсера (Main Hall)\n- Тема: 'Развитие личного бренда и поддержка Women Empowerment'.\n\n17:00–17:40\nЗакрытие форума (Main Hall)\n- Резюме ключевых моментов форума.\n- Благодарственные слова организаторов (LCVP BD, LCVP PM, OC team).\n- Анонс следующих мероприятий.\n", &telebot.SendOptions{
+			ReplyMarkup: inlineBack,
+		})
 	})
-})
-
-
-
 
 	// Обработка callback-кнопки "О проекте"
 	bot.Handle(&btnAbout, func(c telebot.Context) error {
@@ -93,10 +80,10 @@ bot.Handle(&btnAgenda, func(c telebot.Context) error {
 		if err := c.Respond(&telebot.CallbackResponse{}); err != nil {
 			return err
 		}
-			// Удаление сообщения с кнопками
-	if err := bot.Delete(c.Message()); err != nil {
-		return err
-	}
+		// Удаление сообщения с кнопками
+		if err := bot.Delete(c.Message()); err != nil {
+			return err
+		}
 		// Отправка текста с кнопкой "Назад"
 		inlineBack.Inline(
 			inlineBack.Row(btnBack),
@@ -112,10 +99,10 @@ bot.Handle(&btnAgenda, func(c telebot.Context) error {
 		if err := c.Respond(&telebot.CallbackResponse{}); err != nil {
 			return err
 		}
-			// Удаление сообщения с кнопками
-	if err := bot.Delete(c.Message()); err != nil {
-		return err
-	}
+		// Удаление сообщения с кнопками
+		if err := bot.Delete(c.Message()); err != nil {
+			return err
+		}
 		// Отправка текста с кнопкой "Назад"
 		inlineBack.Inline(
 			inlineBack.Row(btnBack),
@@ -129,10 +116,10 @@ bot.Handle(&btnAgenda, func(c telebot.Context) error {
 		if err := c.Respond(&telebot.CallbackResponse{}); err != nil {
 			return err
 		}
-			// Удаление сообщения с кнопками
-	if err := bot.Delete(c.Message()); err != nil {
-		return err
-	}
+		// Удаление сообщения с кнопками
+		if err := bot.Delete(c.Message()); err != nil {
+			return err
+		}
 		// Отправка текста с кнопкой "Назад"
 		inlineBack.Inline(
 			inlineBack.Row(btnBack),
@@ -148,10 +135,10 @@ bot.Handle(&btnAgenda, func(c telebot.Context) error {
 		if err := c.Respond(&telebot.CallbackResponse{}); err != nil {
 			return err
 		}
-			// Удаление сообщения с кнопками
-	if err := bot.Delete(c.Message()); err != nil {
-		return err
-	}
+		// Удаление сообщения с кнопками
+		if err := bot.Delete(c.Message()); err != nil {
+			return err
+		}
 		return c.Send("Добро пожаловать на SAMĞA Forum! Выберите действие:", &telebot.SendOptions{
 			ReplyMarkup: inlineMenu,
 		})
@@ -168,7 +155,6 @@ bot.Handle(&btnAgenda, func(c telebot.Context) error {
 		return c.Send("'SAMĞA Forum' — это масштабное мероприятие, посвященное Business & IT, Women Empowerment и Art.")
 	})
 
-
 	bot.Handle(telebot.OnText, func(c telebot.Context) error {
 		text := strings.ToLower(c.Text()) // Преобразуем текст в нижний регистр для удобства
 		switch {
@@ -183,9 +169,30 @@ bot.Handle(&btnAgenda, func(c telebot.Context) error {
 		}
 	})
 	// Запуск бота
-	log.Println("Бот запущен!")
-	
+	var wg sync.WaitGroup
+	errChan := make(chan error, 1)
 
+	log.Println("Starting bot...")
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		bot.Start()
+		log.Println("bot stopped")
+	}()
+	port := "8080"
+	log.Printf("Starting server on port %s...\n", port)
+	err = http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Printf("Error starting server: %s\n", err)
+	}
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
 
-	bot.Start()
+	log.Println("bot started")
+	select {
+	case err := <-errChan:
+		log.Fatalf("Error running handler: %s", err.Error())
+	case s := <-sigs:
+		log.Printf("Received signal: %v", s)
+	}
 }
