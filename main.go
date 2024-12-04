@@ -5,10 +5,18 @@ import (
 	"time"
 	"strings"
 	"gopkg.in/telebot.v3"
+	"fmt"
+    "net/http"
 
 )
 
 func main() {
+		port := "8080"
+	fmt.Printf("Starting server on port %s...\n", port)
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		fmt.Printf("Error starting server: %s\n", err)
+	}
 	
 	// Настройки бота
 	pref := telebot.Settings{
@@ -55,9 +63,6 @@ func main() {
 		
 	})
 
-	// Обработка callback-кнопки "Программа"
-	// Обработка callback-кнопки "Программа"
-// Обработка callback-кнопки "Программа"
 // Обработка callback-кнопки "Программа"
 bot.Handle(&btnAgenda, func(c telebot.Context) error {
 	// Ответ на нажатие кнопки
